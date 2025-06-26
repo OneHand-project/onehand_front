@@ -1,5 +1,5 @@
 import { Badge, Bell, Heart, Menu, Plus, Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   DropdownMenu,
@@ -13,8 +13,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Link } from "@remix-run/react";
+// import { LinksFunction } from "@remix-run/node";
+import "~/styles/ToolBar.css?url";
 
+// export const links: LinksFunction = () => [
+//   { rel: "stylesheet", href: toolbarstyles },
+// ];
 export default function ToolBar() {
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -42,30 +59,33 @@ export default function ToolBar() {
           </div>
 
           {/* Desktop Navigation */}
-
-          <nav className="md:hidden flex items-center space-x-6">
-            {navigationItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
+          {windowWidth >= 768 && (
+            <nav className="navigation space-x-6">
+              {navigationItems.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          )}
 
           {/* Search Bar */}
-          <div className="md:hidden flex items-center flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="search"
-                placeholder="Search projects..."
-                className="pl-10 pr-4 w-full bg-gray-50 border-gray-200 focus:bg-white"
-              />
+          {windowWidth >= 768 && (
+            <div className="searchbar items-center flex-1 max-w-md mx-8">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="search"
+                  placeholder="Search projects..."
+                  className="pl-10 pr-4 w-full bg-gray-50 border-gray-200 focus:bg-white"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
@@ -139,18 +159,20 @@ export default function ToolBar() {
             )}
 
             {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
+            {windowWidth <= 768 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            )}
           </div>
         </div>
 
