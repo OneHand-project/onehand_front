@@ -1,0 +1,26 @@
+.container {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "mainimage donation";
+  max-width: 100vw;
+  min-height: 100vh;
+  padding: 2rem 4rem;
+}
+.mainimage {
+  grid-area: mainimage;
+  width: 60vw;
+  height: fit-content;
+  /* box-shadow: 0rem 0.1rem 1rem 0rem gray; */
+  border-radius: 50px;
+}
+
+.mainimage > img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 50px;
+  height: 50vh;
+}
+
+.description {
+}

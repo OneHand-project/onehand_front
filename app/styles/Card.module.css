@@ -1,0 +1,76 @@
+.containers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    width: 90%;
+    color: black;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    gap: 2rem;
+    cursor: pointer;
+}
+
+.roundedimg img {
+    width: clamp(1rem, 3vw, 2rem);
+    height: auto;
+    object-fit: contain;
+}
+
+.roundedimg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: lightgray;
+    padding: 1rem;
+    border-radius: 50%;
+    width: auto;
+    height: auto;
+    overflow: hidden;
+}
+
+.containers p {
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    font-weight: 500;
+    margin: 0;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .containers {
+        /* Card sizing */
+        min-width: 120px; /* Ideal touch target size */
+        width: 15rem;
+        padding: 1.5rem 1rem; /* Reduced padding */
+
+        /* Content spacing */
+        gap: 0.8rem;
+
+        /* Visual adjustments */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Lighter shadow */
+        margin: 0 0.5rem; /* Add horizontal margin between cards */
+    }
+
+    .roundedimg {
+        /* Smaller circle for mobile */
+        padding: 0.75rem;
+        width: 50px;
+        height: 50px;
+    }
+
+    .roundedimg img {
+        /* Better icon scaling */
+        width: 24px;
+        height: 24px;
+    }
+
+    .containers p {
+        /* More compact text */
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+}
