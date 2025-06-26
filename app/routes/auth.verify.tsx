@@ -33,6 +33,10 @@ const CACHE_DURATION = 60000; // 1 minute
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const email = url.searchParams.get("email");
+
+  const cookieHeader = request.headers.get("Cookie");
+  const token = await authCookie.parse(cookieHeader);
+
   if (!email) {
     return json({
       emailSent: false,
@@ -58,10 +62,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const API_URL = process.env.API_URL;
 
   try {
-    const res = await fetch(`${API_URL}/users/send-email`, {
+    const res = await fetch(`${API_URL}/api/auth/send-email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ email }),
     });
@@ -99,6 +104,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const code = formData.get("code");
   const email = formData.get("email");
   const actionType = formData.get("_action");
+
+  const cookieHeader = request.headers.get("Cookie");
+  const token = await authCookie.parse(cookieHeader);
 
   // Handle resend action
   if (actionType === "resend") {
@@ -144,12 +152,13 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const res = await fetch(`${API_URL}/users/verify-code`, {
+    const res = await fetch(`${API_URL}/api/auth/verify-code`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ email, code }),
+      body: JSON.stringify({ email: email, code: code }),
     });
 
     if (!res.ok) {
@@ -164,6 +173,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Clear cache on successful verification
     emailSentCache.delete(email as string);
+    const message = await res.text();
+    console.log(message); // "Email verified successfully."
 
     // Redirect on successful verification
     return redirect("/");

@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Link } from "@remix-run/react";
 
 export default function ToolBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,7 +42,8 @@ export default function ToolBar() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="sm:hidden lg:flex items-center space-x-6">
+
+          <nav className="md:hidden flex items-center space-x-6">
             {navigationItems.map((item) => (
               <a
                 key={item.label}
@@ -54,7 +56,7 @@ export default function ToolBar() {
           </nav>
 
           {/* Search Bar */}
-          <div className="sm:hidden lg:flex items-center flex-1 max-w-md mx-8">
+          <div className="md:hidden flex items-center flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -132,15 +134,7 @@ export default function ToolBar() {
               </>
             ) : (
               <>
-                <Button variant="ghost" onClick={() => setIsLoggedIn(true)}>
-                  Sign In
-                </Button>
-                <Button
-                  onClick={() => setIsLoggedIn(true)}
-                  className="hidden sm:flex"
-                >
-                  Sign Up
-                </Button>
+                <Link to={"/auth"}>Sign In</Link>
               </>
             )}
 
