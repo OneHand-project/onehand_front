@@ -13,13 +13,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Link } from "@remix-run/react";
-// import { LinksFunction } from "@remix-run/node";
-import "~/styles/ToolBar.css?url";
 
-// export const links: LinksFunction = () => [
-//   { rel: "stylesheet", href: toolbarstyles },
-// ];
-export default function ToolBar() {
+import "~/styles/ToolBar.css";
+
+export default function ToolBar({
+  login,
+  data,
+}: {
+  login: boolean;
+  data: { username: string; email: string };
+}) {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1024
   );
@@ -33,7 +36,7 @@ export default function ToolBar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(login);
 
   const navigationItems = [
     { label: "Discover", href: "/discover" },
@@ -117,26 +120,29 @@ export default function ToolBar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant="ghost"
-                      className="relative h-8 w-8 rounded-full"
+                      variant="outline"
+                      className="relative h-8 w-auto rounded-full pointer-events-auto"
                     >
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src="/placeholder.svg?height=32&width=32"
+                          // src="/placeholder.svg?height=32&width=32"
                           alt="User"
                         />
                         <AvatarFallback>JD</AvatarFallback>
                       </Avatar>
+                      <span className="text-sm font-medium">
+                        {data.username || "Guest"}
+                      </span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          John Doe
+                          {data.username}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
-                          john@example.com
+                          {data.email}
                         </p>
                       </div>
                     </DropdownMenuLabel>

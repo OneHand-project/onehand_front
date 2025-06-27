@@ -1,4 +1,4 @@
-import { json, MetaFunction } from "@remix-run/node";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import CampaignCard from "~/components/CampaignCard";
 import CategoryCard from "~/components/Card";
@@ -7,6 +7,8 @@ import ToolBar from "~/components/ToolBar";
 import styles from "~/styles/Home.module.css";
 
 import { Campaign } from "~/types/campaign";
+import { authCookie, verifyuser } from "~/utils/cookies.server";
+
 export const meta: MetaFunction = () => {
   return [
     { title: "OneHand" },
@@ -14,31 +16,37 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const Hero = "/assets/Hero.webp";
+const Hero = "/Hero.webp";
 const Medical = "/assets/category/medic.png";
 const Technology = "/assets/category/innovation.png";
 const Restoring = "/assets/category/restore.png";
 const Business = "/assets/category/investment.png";
 
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
   const API_URL = process.env.API_URL;
+  const cookieHeader = request.headers.get("Cookie");
+  const token = await authCookie.parse(cookieHeader);
+
+  const data = (await verifyuser(token)) || null;
+  const islogin = data != null ? true : false;
+
   try {
     const res = await fetch(`${API_URL}/api/campaigns/featured`);
     if (!res.ok) {
       throw json({ message: "Not found" }, { status: 404 });
     }
     const campaigns: Campaign[] = await res.json();
-    return campaigns;
+    return json({ campaigns, islogin, data });
   } catch (e) {
     console.error(e);
     return [];
   }
 }
 export default function Index() {
-  const campaigns = useLoaderData<typeof loader>();
+  const { campaigns, islogin, data } = useLoaderData<typeof loader>();
   return (
     <>
-      <ToolBar />
+      <ToolBar login={islogin} data={data} />
       <main className={styles.container}>
         {/* Hero section */}
         <section className={styles.herosection}>
