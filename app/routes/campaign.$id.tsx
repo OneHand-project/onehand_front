@@ -122,7 +122,10 @@ export default function CampaignPage() {
               <CardContent className="p-0">
                 <div className="relative">
                   <img
-                    src={campaignData.mainimage || "/placeholder.svg"}
+                    src={
+                      campaignData.mainimage ||
+                      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg"
+                    }
                     alt="Campaign"
                     className="w-full h-[400px] object-cover rounded-t-lg"
                   />

@@ -9,7 +9,6 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
 
 // Sample campaign data
 const sampleCampaigns = [
@@ -96,22 +95,6 @@ const sampleCampaigns = [
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-}
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const q = url.searchParams.get("q") || "";
-  const page = url.searchParams.get("page") || "0";
-  const API_URL = process.env.API_URL;
-  const res = await fetch(
-    `${API_URL}/api/campaigns/campaigns?q=${q}&page=${page}&size=6`,
-    {
-      method: "GET",
-    }
-  );
-  if (!res.ok) return json({ message: "server error ", status: 404 });
-  const data = await res.json();
-  return json({ campaigns: data.content, hasNext: !data.last, query: q });
 }
 
 export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
