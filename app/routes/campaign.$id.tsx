@@ -29,7 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const token = await authCookie.parse(cookieHeader);
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const API_URL = process.env.API_URL;
+  const API_URL = "http://134.122.95.126:8080";
   if (intent == "donate") {
     try {
       const res = await fetch(`${API_URL}/api/campaigns/donate`, {
@@ -65,7 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
   return json({ message: "donation succesfull" });
 }
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  const API_URL = process.env.API_URL;
+  const API_URL = "http://134.122.95.126:8080";
   const campaignId = params.id;
   const cookieHeader = request.headers.get("Cookie");
   const token = await authCookie.parse(cookieHeader);
