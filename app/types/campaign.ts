@@ -4,11 +4,25 @@ interface Campaign {
   description: string;
   location: string;
   date: string;
-  donationGoal: string;
+  donationGoal: number;
+  currentDonation: number;
   category: string;
   isFeatured: false;
   mainimage: string;
-  multpleimages: string[];
+  userProfile: userProfile;
+  daysLeft: number;
+  shortDescription: string;
+  volunteers: string;
+  donatercount: string;
 }
 
-export { Campaign };
+interface userProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  avatar: string;
+  verified: boolean;
+}
+
+export type { Campaign, userProfile };

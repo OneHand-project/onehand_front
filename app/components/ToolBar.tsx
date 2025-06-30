@@ -1,6 +1,5 @@
-import { Badge, Bell, Heart, Menu, Plus, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
-
+import { Search, Menu, X, Heart, Bell, Plus } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,42 +7,40 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Link } from "@remix-run/react";
+} from "~/components/ui/dropdown-menu";
+import { Input } from "~/components/ui/input";
+import { Badge } from "~/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { userProfile } from "~/types/campaign";
+import { useNavigate } from "@remix-run/react";
+import SearchOverlay from "./home/search-overlay";
+import { useState } from "react";
 
-import "~/styles/ToolBar.css";
-
-export default function ToolBar({
+export default function CrowdfundingToolbar({
   login,
   data,
+  onSearchOpen,
 }: {
   login: boolean;
-  data: { username: string; email: string };
+  data: userProfile;
+  onSearchOpen?: () => void;
 }) {
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1024
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(login);
 
+  const navigation = useNavigate();
   const navigationItems = [
     { label: "Discover", href: "/discover" },
     { label: "Categories", href: "/categories" },
     { label: "How it Works", href: "/how-it-works" },
     { label: "Success Stories", href: "/success-stories" },
   ];
+
+  const handleSearchClick = () => {
+    if (onSearchOpen) {
+      onSearchOpen();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -62,36 +59,39 @@ export default function ToolBar({
           </div>
 
           {/* Desktop Navigation */}
-          {windowWidth >= 768 && (
-            <nav className="navigation space-x-6">
-              {navigationItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-          )}
+          <nav className="hidden lg:flex items-center space-x-6">
+            {navigationItems.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
 
           {/* Search Bar */}
-          {windowWidth >= 768 && (
-            <div className="searchbar items-center flex-1 max-w-md mx-8">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="search"
-                  placeholder="Search projects..."
-                  className="pl-10 pr-4 w-full bg-gray-50 border-gray-200 focus:bg-white"
-                />
-              </div>
+          <div className="hidden lg:flex items-center flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="search"
+                placeholder="Search projects..."
+                className="pl-10 pr-4 w-full bg-gray-50 border-gray-200 focus:bg-white"
+                onClick={handleSearchClick}
+              />
             </div>
-          )}
+          </div>
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
+            {/* Start Project Button */}
+            <Button className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Start a Project
+            </Button>
+
             {/* Mobile Search */}
             <Button variant="ghost" size="icon" className="lg:hidden">
               <Search className="h-5 w-5" />
@@ -120,18 +120,15 @@ export default function ToolBar({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant="outline"
-                      className="relative h-8 w-auto rounded-full pointer-events-auto"
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full"
                     >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          // src="/placeholder.svg?height=32&width=32"
-                          alt="User"
-                        />
+                        <AvatarImage src={data.avatar} alt="User" />
                         <AvatarFallback>JD</AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium">
-                        {data.username || "Guest"}
+                        {data?.username || "Guest"}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -139,10 +136,10 @@ export default function ToolBar({
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {data.username}
+                          {data?.username}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
-                          {data.email}
+                          {data?.email}
                         </p>
                       </div>
                     </DropdownMenuLabel>
@@ -160,25 +157,36 @@ export default function ToolBar({
               </>
             ) : (
               <>
-                <Link to={"/auth"}>Sign In</Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    navigation("/auth");
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={() => setIsLoggedIn(true)}
+                  className="hidden sm:flex"
+                >
+                  Sign Up
+                </Button>
               </>
             )}
 
             {/* Mobile Menu Button */}
-            {windowWidth <= 768 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
           </div>
         </div>
 

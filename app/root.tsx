@@ -11,6 +11,12 @@ import "~/global.css";
 import "./tailwind.css";
 
 export const links: LinksFunction = () => [
+  {
+    rel: "icon",
+    href: "/Logo.png",
+    type: "image/png",
+  },
+
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

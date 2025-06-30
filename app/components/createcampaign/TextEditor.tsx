@@ -1,25 +1,23 @@
-import "~/components/tiptap-node/paragraph-node/paragraph-node.scss";
-import "~/components/tiptap-node/image-node/image-node.scss";
+import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
+import "@/components/tiptap-node/image-node/image-node.scss";
 
-import { forwardRef, HTMLAttributes, useState } from "react";
+import { forwardRef, HTMLAttributes } from "react";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import { Editor } from "@tiptap/core";
 import { StarterKit } from "@tiptap/starter-kit";
-import { HeadingButton } from "./tiptap-ui/heading-button";
 
 import { Image } from "@tiptap/extension-image";
 import { Paragraph } from "@tiptap/extension-paragraph";
 import { Underline } from "@tiptap/extension-underline";
 import { Superscript } from "@tiptap/extension-superscript";
 import { Subscript } from "@tiptap/extension-subscript";
-import { MarkButton } from "./tiptap-ui/mark-button";
-import { TextAlignButton } from "./tiptap-ui/text-align-button";
 import { TextAlign } from "@tiptap/extension-text-align";
-import { ImageUploadButton } from "~/components/tiptap-ui/image-upload-button";
-import { ImageUploadNode } from "./tiptap-node/image-upload-node";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "react-router";
-import { Separator } from "./ui/separator";
+import { Separator } from "~/components/ui/separator";
+import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
+import { HeadingButton } from "@/components/tiptap-ui/heading-button";
+import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
+import { MarkButton } from "@/components/tiptap-ui/mark-button";
+import { TextAlignButton } from "@/components/tiptap-ui/text-align-button";
 
 interface TextEditorProps extends HTMLAttributes<HTMLDivElement> {
   onUpdate?: (html: string) => void; // or any other method signature
@@ -30,6 +28,7 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
   ({ className, onUpdate, token, ...props }, ref) => {
     TextEditor.displayName = "Editor";
     const MAX_FILE_SIZE = 2048 * 2048;
+
     const handleImageUpload = async (
       file: File,
       onProgress?: (event: { progress: number }) => void,
@@ -45,35 +44,39 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
           }MB)`
         );
       }
-      try {
-        let url = "";
-        for (let progress = 0; progress <= 100; progress += 10) {
-          if (abortSignal?.aborted) {
-            throw new Error("Upload cancelled");
-          }
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          onProgress?.({ progress });
-          const formdata = new FormData();
-          formdata.append("list", file);
 
-          const res = await fetch(
-            `http://localhost:8080/api/campaigns/upload`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: formdata,
-            }
-          );
-          if (!res.ok) return "";
-          url = await res.text();
+      try {
+        onProgress?.({ progress: 0 });
+
+        if (abortSignal?.aborted) {
+          throw new Error("Upload cancelled");
         }
-        return url;
+
+        const formdata = new FormData();
+        formdata.append("list", file);
+
+        const res = await fetch(`http://localhost:8080/api/campaigns/upload`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formdata,
+        });
+
+        onProgress?.({ progress: 100 });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(
+            `Upload failed: ${res.status} ${res.statusText} - ${errorText}`
+          );
+        }
+
+        return await res.text();
       } catch (e) {
-        console.error(e);
+        console.error("Upload error:", e);
+        throw e; // Re-throw the error instead of swallowing it
       }
-      return "";
     };
 
     const editor: Editor | null = useEditor({

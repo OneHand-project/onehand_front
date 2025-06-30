@@ -1,8 +1,10 @@
 import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import CampaignCard from "~/components/CampaignCard";
 import CategoryCard from "~/components/Card";
-import ToolBar from "~/components/ToolBar";
+import SearchOverlay from "~/components/home/search-overlay";
+import CrowdfundingToolbar from "~/components/ToolBar";
 
 import styles from "~/styles/Home.module.css";
 
@@ -36,6 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       throw json({ message: "Not found" }, { status: 404 });
     }
     const campaigns: Campaign[] = await res.json();
+
     return json({ campaigns, islogin, data });
   } catch (e) {
     console.error(e);
@@ -44,9 +47,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 export default function Index() {
   const { campaigns, islogin, data } = useLoaderData<typeof loader>();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   return (
     <>
-      <ToolBar login={islogin} data={data} />
+      <CrowdfundingToolbar
+        login={islogin}
+        data={data}
+        onSearchOpen={() => setIsSearchOpen(true)}
+      />
       <main className={styles.container}>
         {/* Hero section */}
         <section className={styles.herosection}>
@@ -66,7 +74,7 @@ export default function Index() {
             <p className={styles.alttext}>
               Launch a fundraiser to support the causes you care about.
             </p>
-            <Link type="button" to={"/campaign/createcampaign"}>
+            <Link type="button" to={"/campaign/create"}>
               Start a Campaign
             </Link>
           </div>
@@ -101,16 +109,17 @@ export default function Index() {
         <section className={styles.categoryScrollWrapper}>
           <div className={styles.categorycontainer}>
             <CategoryCard logo={Medical} name="Medical" />
-            <CategoryCard logo={Business} name="Business" />
+            <CategoryCard logo={Business} name="Bavatarusiness" />
             <CategoryCard logo={Technology} name="Technology" />
             <CategoryCard logo={Restoring} name="Rebuild & Recover" />
           </div>
         </section>
         <section className={styles.Categcontainer}>
           <h1>Featured Campaigns</h1>
+
           {Array.isArray(campaigns) &&
             campaigns.map((camp) => (
-              <CampaignCard key={camp.id.toString()} campaign={camp} />
+              <CampaignCard key={camp.id} campaign={camp} />
             ))}
         </section>
         <section className={styles.trustworthy}>
@@ -125,6 +134,10 @@ export default function Index() {
             Whenever you need help, you can ask here.
           </p>
         </section>
+        <SearchOverlay
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+        />
       </main>
     </>
   );

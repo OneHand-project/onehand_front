@@ -41,7 +41,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ status: 200, success: true });
   } catch (e) {
     console.error(e);
-    return json({ error: "Unexpected error", status: 500 }); // <-- THIS IS THE FIX
+    return json({ error: "Unexpected error", status: 500 });
   }
 }
 export default function Auth() {

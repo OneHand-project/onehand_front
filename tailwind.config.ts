@@ -1,7 +1,12 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./app/**/*.{js,jsx,ts,tsx}",
+    "./app/**/.client/**/*.{js,jsx,ts,tsx}",
+    "./app/**/.server/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       fontFamily: {
@@ -18,5 +23,7 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), // shadcn uses this],
+  plugins: [
+    require("tailwindcss-animate"), // shadcn uses this
+  ],
 } satisfies Config;

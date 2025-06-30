@@ -26,7 +26,7 @@ export async function verifyuser(token) {
     }
 
     const data = await res.json();
-    return { username: data.username, email: data.email };
+    return data;
   } catch (e) {
     console.error(e);
   }
