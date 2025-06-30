@@ -29,9 +29,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const token = await authCookie.parse(cookieHeader);
   const formData = await request.formData();
   const intent = formData.get("intent");
+  const API_URL = process.env.API_URL;
   if (intent == "donate") {
     try {
-      const res = await fetch(`http://localhost:8080/api/campaigns/donate`, {
+      const res = await fetch(`${API_URL}/api/campaigns/donate`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -46,7 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   } else if (intent == "volunteer") {
     try {
-      const res = await fetch(`http://localhost:8080/api/campaigns/volunteer`, {
+      const res = await fetch(`${API_URL}/api/campaigns/volunteer`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

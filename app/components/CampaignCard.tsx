@@ -20,10 +20,13 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
           {campaign.title}
         </h3>
         <div className={styles.ProgressBar}>
-          <ProgressBar value={75} /> {/* 75% funded */}
+          <ProgressBar
+            value={(campaign.currentDonation / campaign.donationGoal) * 100}
+          />{" "}
+          {/* 75% funded */}
         </div>
         <div className={styles.info}>
-          <p>$10,000 Raised</p>
+          <p>${campaign.currentDonation} Raised</p>
           <p>Goal: ${campaign.donationGoal}</p>
         </div>
         <div className={styles.infocontainer}>

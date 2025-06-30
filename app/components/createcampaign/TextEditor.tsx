@@ -28,7 +28,7 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
   ({ className, onUpdate, token, ...props }, ref) => {
     TextEditor.displayName = "Editor";
     const MAX_FILE_SIZE = 2048 * 2048;
-
+    const API_URL = process.env.API_URL;
     const handleImageUpload = async (
       file: File,
       onProgress?: (event: { progress: number }) => void,
@@ -55,7 +55,7 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
         const formdata = new FormData();
         formdata.append("list", file);
 
-        const res = await fetch(`http://localhost:8080/api/campaigns/upload`, {
+        const res = await fetch(`${API_URL}/api/campaigns/upload`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

@@ -142,6 +142,7 @@ export default function CreateCampaign() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedCategory, setSelectedCategory] = useState("");
   const [description, setdescription] = useState("");
+  const API_URL = process.env.API_URL;
 
   const { token } = useLoaderData<typeof loader>();
 
@@ -183,7 +184,7 @@ export default function CreateCampaign() {
 
       if (date) data.append("date", date?.toISOString().split("T")[0] || "");
       try {
-        const res = await fetch("http://localhost:8080/api/campaigns/create", {
+        const res = await fetch(`${API_URL}/api/campaigns/create`, {
           method: "POST",
           body: data,
           headers: {

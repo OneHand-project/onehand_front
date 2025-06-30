@@ -96,6 +96,20 @@ const sampleCampaigns = [
     daysLeft: 19,
     supporters: 112,
   },
+  {
+    id: 7,
+    title: "Clean Water for Rural Communities",
+    description:
+      "Help us build wells and provide clean drinking water to remote villages in need.",
+    image:
+      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
+    raised: 15420,
+    goal: 25000,
+    location: "Kenya",
+    category: "Water & Sanitation",
+    daysLeft: 23,
+    supporters: 156,
+  },
 ];
 
 interface SearchOverlayProps {
