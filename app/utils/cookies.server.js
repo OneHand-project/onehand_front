@@ -3,7 +3,8 @@ import { createCookie } from "@remix-run/node";
 export const authCookie = createCookie("token", {
   httpOnly: true,
   sameSite: "lax",
-  secure: import.meta.env.NODE_ENV === "production",
+  // secure: import.meta.env.NODE_ENV === "production",
+  secure: process.env.NODE_ENV === "production", // ✅ correct,
   path: "/",
 });
 const API_URL = import.meta.env.VITE_API_URL;
