@@ -5,7 +5,7 @@ import CampaignCard from "~/components/CampaignCard";
 import CategoryCard from "~/components/Card";
 import SearchOverlay from "~/components/home/search-overlay";
 import CrowdfundingToolbar from "~/components/ToolBar";
-
+import HowItWorks from "~/components/HowItWorks";
 import styles from "~/styles/Home.module.css";
 
 import { Campaign } from "~/types/campaign";

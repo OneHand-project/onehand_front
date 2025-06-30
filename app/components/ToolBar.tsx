@@ -30,10 +30,8 @@ export default function CrowdfundingToolbar({
 
   const navigation = useNavigate();
   const navigationItems = [
-    { label: "Discover", href: "/discover" },
     { label: "Categories", href: "/categories" },
     { label: "How it Works", href: "/how-it-works" },
-    { label: "Success Stories", href: "/success-stories" },
   ];
 
   const handleSearchClick = () => {
