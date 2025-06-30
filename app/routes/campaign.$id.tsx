@@ -34,6 +34,7 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       const res = await fetch(`${API_URL}/api/campaigns/donate`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,6 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       const res = await fetch(`${API_URL}/api/campaigns/volunteer`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Authorization: `Bearer ${token}`,
         },

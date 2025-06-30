@@ -265,6 +265,7 @@ export default function CreateCampaign() {
       try {
         const res = await fetch(`${API_URL}/api/campaigns/create`, {
           method: "POST",
+          credentials: "include",
           body: data,
           headers: {
             Authorization: `Bearer ${token}`,

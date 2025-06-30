@@ -64,6 +64,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const res = await fetch(`${API_URL}/api/auth/send-email`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -120,6 +121,7 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       const res = await fetch(`${API_URL}/users/send-email`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -154,6 +156,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const res = await fetch(`${API_URL}/api/auth/verify-code`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
