@@ -17,7 +17,8 @@ const sampleCampaigns = [
     title: "Clean Water for Rural Communities",
     description:
       "Help us build wells and provide clean drinking water to remote villages in need.",
-    image: "/placeholder.svg?height=200&width=300",
+    image:
+      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
     raised: 15420,
     goal: 25000,
     location: "Kenya",
@@ -30,7 +31,8 @@ const sampleCampaigns = [
     title: "Education for Underprivileged Children",
     description:
       "Support our mission to provide quality education and school supplies to children in poverty.",
-    image: "/placeholder.svg?height=200&width=300",
+    image:
+      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
     raised: 8750,
     goal: 15000,
     location: "Bangladesh",
@@ -43,7 +45,8 @@ const sampleCampaigns = [
     title: "Emergency Medical Relief",
     description:
       "Urgent medical supplies and treatment for families affected by natural disasters.",
-    image: "/placeholder.svg?height=200&width=300",
+    image:
+      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
     raised: 22100,
     goal: 30000,
     location: "Philippines",
@@ -56,7 +59,8 @@ const sampleCampaigns = [
     title: "Food Security Initiative",
     description:
       "Combat hunger by providing nutritious meals and sustainable farming solutions.",
-    image: "/placeholder.svg?height=200&width=300",
+    image:
+      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
     raised: 12300,
     goal: 20000,
     location: "Ethiopia",
@@ -69,7 +73,8 @@ const sampleCampaigns = [
     title: "Wildlife Conservation Project",
     description:
       "Protect endangered species and preserve natural habitats for future generations.",
-    image: "/placeholder.svg?height=200&width=300",
+    image:
+      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
     raised: 18900,
     goal: 35000,
     location: "Costa Rica",
@@ -82,7 +87,8 @@ const sampleCampaigns = [
     title: "Disaster Relief Housing",
     description:
       "Build temporary shelters and provide housing assistance for disaster victims.",
-    image: "/placeholder.svg?height=200&width=300",
+    image:
+      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
     raised: 9800,
     goal: 18000,
     location: "Turkey",
@@ -257,7 +263,10 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     <CardHeader className="p-0">
                       <div className="relative">
                         <img
-                          src={campaign.image || "/placeholder.svg"}
+                          src={
+                            campaign.image ||
+                            "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg"
+                          }
                           alt={campaign.title}
                           width={300}
                           height={200}
