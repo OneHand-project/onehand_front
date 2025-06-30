@@ -285,14 +285,16 @@ export default function CampaignPage() {
                     Donate Now
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    className="w-full bg-transparent"
-                    onClick={() => setShowVolunteerModal(true)}
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Volunteer ({campaignData.volunteers})
-                  </Button>
+                  {campaignData.isvolunteer == true ? (
+                    <Button
+                      variant="outline"
+                      className="w-full bg-transparent"
+                      onClick={() => setShowVolunteerModal(true)}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Volunteer ({campaignData.volunteers})
+                    </Button>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>

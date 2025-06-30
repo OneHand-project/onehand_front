@@ -14,7 +14,6 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Heart, CreditCard } from "lucide-react";
 import { Form, json, useFetcher } from "@remix-run/react";
-import { TokenPayload } from "~/types/Token";
 
 interface DonationModalProps {
   isOpen: boolean;

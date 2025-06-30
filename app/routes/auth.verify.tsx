@@ -173,8 +173,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Clear cache on successful verification
     emailSentCache.delete(email as string);
-    const message = await res.text();
-    console.log(message); // "Email verified successfully."
 
     // Redirect on successful verification
     return redirect("/");

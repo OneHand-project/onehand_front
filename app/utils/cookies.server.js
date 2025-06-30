@@ -3,10 +3,10 @@ import { createCookie } from "@remix-run/node";
 export const authCookie = createCookie("token", {
   httpOnly: true,
   sameSite: "lax",
-  secure: process.env.NODE_ENV === "production",
+  secure: import.meta.env.NODE_ENV === "production",
   path: "/",
 });
-const API_URL = process.env.API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 export async function verifyuser(token) {
   if (!token) {

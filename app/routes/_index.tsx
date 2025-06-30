@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import CampaignCard from "~/components/CampaignCard";
@@ -10,13 +10,6 @@ import styles from "~/styles/Home.module.css";
 
 import { Campaign } from "~/types/campaign";
 import { authCookie, verifyuser } from "~/utils/cookies.server";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "OneHand" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
 
 const Hero = "/Hero.webp";
 const Medical = "/assets/category/medic.png";
@@ -45,9 +38,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return [];
   }
 }
+
 export default function Index() {
   const { campaigns, islogin, data } = useLoaderData<typeof loader>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   return (
     <>
       <CrowdfundingToolbar
