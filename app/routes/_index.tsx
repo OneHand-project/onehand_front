@@ -18,7 +18,7 @@ const Restoring = "/assets/category/restore.png";
 const Business = "/assets/category/investment.png";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const API_URL = "http://134.122.95.126:8080";
+  const API_URL = process.env.API_URL;
   const cookieHeader = request.headers.get("Cookie");
   const token = await authCookie.parse(cookieHeader);
 
@@ -27,12 +27,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   try {
     const res = await fetch(`${API_URL}/api/campaigns/featured`);
-    if (!res.ok) {
+    const fetchcampaigns = await fetch(`${API_URL}/api/campaigns`);
+
+    if (!res.ok && !fetchcampaigns.ok) {
       throw json({ message: "Not found" }, { status: 404 });
     }
     const campaigns: Campaign[] = await res.json();
+    const allcampaigns: Campaign[] = await fetchcampaigns.json();
 
-    return json({ campaigns, islogin, data });
+    return json({ campaigns, islogin, data, allcampaigns });
   } catch (e) {
     console.error(e);
     return [];
@@ -40,7 +43,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
-  const { campaigns, islogin, data } = useLoaderData<typeof loader>();
+  const { campaigns, islogin, data, allcampaigns } =
+    useLoaderData<typeof loader>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
@@ -132,6 +136,7 @@ export default function Index() {
         <SearchOverlay
           isOpen={isSearchOpen}
           onClose={() => setIsSearchOpen(false)}
+          campaigns={allcampaigns}
         />
       </main>
     </>

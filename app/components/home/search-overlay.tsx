@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, X, Heart, MapPin, Calendar, Target } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -9,118 +9,23 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-
-// Sample campaign data
-const sampleCampaigns = [
-  {
-    id: 1,
-    title: "Clean Water for Rural Communities",
-    description:
-      "Help us build wells and provide clean drinking water to remote villages in need.",
-    image:
-      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
-    raised: 15420,
-    goal: 25000,
-    location: "Kenya",
-    category: "Water & Sanitation",
-    daysLeft: 23,
-    supporters: 156,
-  },
-  {
-    id: 2,
-    title: "Education for Underprivileged Children",
-    description:
-      "Support our mission to provide quality education and school supplies to children in poverty.",
-    image:
-      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
-    raised: 8750,
-    goal: 15000,
-    location: "Bangladesh",
-    category: "Education",
-    daysLeft: 45,
-    supporters: 89,
-  },
-  {
-    id: 3,
-    title: "Emergency Medical Relief",
-    description:
-      "Urgent medical supplies and treatment for families affected by natural disasters.",
-    image:
-      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
-    raised: 22100,
-    goal: 30000,
-    location: "Philippines",
-    category: "Healthcare",
-    daysLeft: 12,
-    supporters: 234,
-  },
-  {
-    id: 4,
-    title: "Food Security Initiative",
-    description:
-      "Combat hunger by providing nutritious meals and sustainable farming solutions.",
-    image:
-      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
-    raised: 12300,
-    goal: 20000,
-    location: "Ethiopia",
-    category: "Food & Nutrition",
-    daysLeft: 31,
-    supporters: 167,
-  },
-  {
-    id: 5,
-    title: "Wildlife Conservation Project",
-    description:
-      "Protect endangered species and preserve natural habitats for future generations.",
-    image:
-      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
-    raised: 18900,
-    goal: 35000,
-    location: "Costa Rica",
-    category: "Environment",
-    daysLeft: 28,
-    supporters: 203,
-  },
-  {
-    id: 6,
-    title: "Disaster Relief Housing",
-    description:
-      "Build temporary shelters and provide housing assistance for disaster victims.",
-    image:
-      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
-    raised: 9800,
-    goal: 18000,
-    location: "Turkey",
-    category: "Emergency Relief",
-    daysLeft: 19,
-    supporters: 112,
-  },
-  {
-    id: 7,
-    title: "Clean Water for Rural Communities",
-    description:
-      "Help us build wells and provide clean drinking water to remote villages in need.",
-    image:
-      "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg?height=200&width=300",
-    raised: 15420,
-    goal: 25000,
-    location: "Kenya",
-    category: "Water & Sanitation",
-    daysLeft: 23,
-    supporters: 156,
-  },
-];
+import { Campaign } from "~/types/campaign";
+import { Link } from "@remix-run/react";
 
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
+  campaigns: Campaign[];
 }
 
-export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
+export default function SearchOverlay({
+  isOpen,
+  onClose,
+  campaigns,
+}: SearchOverlayProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCampaigns, setFilteredCampaigns] = useState(
-    sampleCampaigns.slice(0, 6)
+    campaigns.slice(0, 6)
   );
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
@@ -134,12 +39,20 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     "Emergency Relief",
   ];
 
+  useEffect(() => {
+    if (campaigns.length > 0) {
+      setFilteredCampaigns(campaigns.slice(0, 6));
+    }
+    setSelectedCategory("All");
+    setSearchQuery("");
+  }, [campaigns]);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query.trim() === "") {
-      setFilteredCampaigns(sampleCampaigns.slice(0, 6));
+      setFilteredCampaigns(campaigns.slice(0, 6));
     } else {
-      const filtered = sampleCampaigns.filter(
+      const filtered = campaigns.filter(
         (campaign) =>
           campaign.title.toLowerCase().includes(query.toLowerCase()) ||
           campaign.description.toLowerCase().includes(query.toLowerCase()) ||
@@ -165,7 +78,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   };
 
   const filterCampaigns = (query: string, category: string) => {
-    let filtered = sampleCampaigns;
+    let filtered = campaigns;
 
     // Filter by category
     if (category !== "All") {
@@ -184,7 +97,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     }
 
     setFilteredCampaigns(
-      filtered.length > 0 ? filtered : sampleCampaigns.slice(0, 6)
+      filtered.length > 0 ? filtered : campaigns.slice(0, 6)
     );
   };
 
@@ -270,93 +183,95 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCampaigns.map((campaign) => (
-                  <Card
-                    key={campaign.id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow duration-200"
-                  >
-                    <CardHeader className="p-0">
-                      <div className="relative">
-                        <img
-                          src={
-                            campaign.image ||
-                            "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg"
-                          }
-                          alt={campaign.title}
-                          width={300}
-                          height={200}
-                          className="w-full h-48 object-cover"
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-3 right-3 w-8 h-8 bg-white/80 hover:bg-white rounded-full"
-                        >
-                          <Heart className="w-4 h-4" />
-                        </Button>
-                        <Badge className="absolute bottom-3 left-3 bg-white/90 text-gray-800 hover:bg-white">
-                          {campaign.category}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                        {campaign.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {campaign.description}
-                      </p>
-
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <MapPin className="w-4 h-4" />
-                          <span>{campaign.location}</span>
+                  <Link key={campaign.id} to={`/campaign/${campaign.id}`}>
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                      <CardHeader className="p-0">
+                        <div className="relative">
+                          <img
+                            src={
+                              campaign.mainimage ||
+                              "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg"
+                            }
+                            alt={campaign.title}
+                            width={300}
+                            height={200}
+                            className="w-full h-48 object-cover"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-3 right-3 w-8 h-8 bg-white/80 hover:bg-white rounded-full"
+                          >
+                            <Heart className="w-4 h-4" />
+                          </Button>
+                          <Badge className="absolute bottom-3 left-3 bg-white/90 text-gray-800 hover:bg-white">
+                            {campaign.category}
+                          </Badge>
                         </div>
+                      </CardHeader>
 
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm font-medium text-gray-700">
-                              {formatCurrency(campaign.raised)} raised
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              {getProgressPercentage(
-                                campaign.raised,
-                                campaign.goal
-                              ).toFixed(0)}
-                              %
-                            </span>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                          {campaign.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          {campaign.description}
+                        </p>
+
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <MapPin className="w-4 h-4" />
+                            <span>{campaign.location}</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                              style={{
-                                width: `${getProgressPercentage(
-                                  campaign.raised,
-                                  campaign.goal
-                                )}%`,
-                              }}
-                            />
-                          </div>
-                          <div className="flex justify-between items-center mt-1 text-xs text-gray-500">
-                            <span>Goal: {formatCurrency(campaign.goal)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
 
-                    <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Target className="w-4 h-4" />
-                          <span>{campaign.supporters} supporters</span>
+                          <div>
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-sm font-medium text-gray-700">
+                                {formatCurrency(campaign.currentDonation)}{" "}
+                                raised
+                              </span>
+                              <span className="text-sm text-gray-500">
+                                {getProgressPercentage(
+                                  campaign.currentDonation,
+                                  campaign.donationGoal
+                                ).toFixed(0)}
+                                %
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+                                style={{
+                                  width: `${getProgressPercentage(
+                                    campaign.currentDonation,
+                                    campaign.donationGoal
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                            <div className="flex justify-between items-center mt-1 text-xs text-gray-500">
+                              <span>
+                                Goal: {formatCurrency(campaign.donationGoal)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>{campaign.daysLeft} days left</span>
+                      </CardContent>
+
+                      <CardFooter className="p-4 pt-0 flex justify-between items-center">
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Target className="w-4 h-4" />
+                            <span>{campaign.donatercount} supporters</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{campaign.daysLeft} days left</span>
+                          </div>
                         </div>
-                      </div>
-                    </CardFooter>
-                  </Card>
+                      </CardFooter>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             )}
@@ -365,7 +280,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
               <div className="text-center mt-8">
                 <Button
                   variant="outline"
-                  onClick={() => setFilteredCampaigns(sampleCampaigns)}
+                  onClick={() => setFilteredCampaigns(campaigns)}
                   className="px-8 py-2"
                 >
                   View All Campaigns

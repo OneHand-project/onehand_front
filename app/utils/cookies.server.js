@@ -6,7 +6,7 @@ export const authCookie = createCookie("token", {
   secure: import.meta.env.NODE_ENV === "production",
   path: "/",
 });
-const API_URL = "http://134.122.95.126:8080";
+const API_URL = process.env.API_URL;
 
 export async function verifyuser(token) {
   if (!token) {

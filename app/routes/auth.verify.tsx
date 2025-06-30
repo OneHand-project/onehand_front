@@ -59,7 +59,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
 
-  const API_URL = "http://134.122.95.126:8080";
+  const API_URL = process.env.API_URL;
 
   try {
     const res = await fetch(`${API_URL}/api/auth/send-email`, {

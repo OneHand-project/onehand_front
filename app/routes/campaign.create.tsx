@@ -173,7 +173,7 @@ export default function CreateCampaign() {
     return true;
   };
 
-  const API_URL = "http://134.122.95.126:8080";
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const { token } = useLoaderData<typeof loader>();
   const [hydrated, sethydrated] = useState(false);
