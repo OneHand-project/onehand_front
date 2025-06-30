@@ -12,15 +12,16 @@ import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Checkbox } from "~/components/ui/checkbox";
-import { Heart, CreditCard } from "lucide-react";
+import { Heart, CreditCard, AlertCircleIcon } from "lucide-react";
 import { Form, json, useFetcher } from "@remix-run/react";
-import { TokenPayload } from "~/types/Token";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 
 interface DonationModalProps {
   isOpen: boolean;
   onClose: () => void;
   campaignId: string;
   campaignTitle: string;
+  islogin: boolean;
 }
 
 export function DonationModal({
@@ -28,6 +29,7 @@ export function DonationModal({
   onClose,
   campaignId,
   campaignTitle,
+  islogin,
 }: DonationModalProps) {
   const [amount, setAmount] = useState("");
   const [customAmount, setCustomAmount] = useState("");
@@ -132,6 +134,15 @@ export function DonationModal({
                 </div>
               </div>
             )}
+            {!islogin && (
+              <Alert variant={"destructive"} style={{ padding: 12 }}>
+                <AlertCircleIcon />
+                <AlertTitle> Sign in </AlertTitle>
+                <AlertDescription>
+                  you need to login inorder to donate
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Action Buttons */}
             <div className="flex space-x-3">
@@ -144,7 +155,7 @@ export function DonationModal({
               </Button>
               <Button
                 onClick={handleDonate}
-                disabled={!selectedAmount || isProcessing}
+                disabled={!selectedAmount || isProcessing || !islogin}
                 className="flex-1"
               >
                 <CreditCard className="h-4 w-4 mr-2" />

@@ -1,5 +1,11 @@
 import { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import {
+  json,
+  Link,
+  redirect,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
 import { format } from "date-fns";
 import {
   AlertCircle,
@@ -10,13 +16,17 @@ import {
   DollarSign,
   Eye,
   Globe,
+  ImageIcon,
   MapPin,
   Quote,
   Save,
   Tag,
   Target,
+  Upload,
+  Users,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Editor } from "~/components/createcampaign/TextEditor";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -40,6 +50,7 @@ import { Separator } from "@radix-ui/react-separator";
 import { Textarea } from "~/components/ui/textarea";
 import { Calendar } from "~/components/ui/calendar";
 import { authCookie } from "~/utils/cookies.server";
+import { Switch } from "@radix-ui/react-switch";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -50,7 +61,13 @@ export const links: LinksFunction = () => [
 const steps = [
   { id: 1, title: "Category", description: "Choose campaign type", icon: Tag },
   { id: 2, title: "Basic Info", description: "Campaign details", icon: Target },
-  { id: 3, title: "Description", description: "Rich content", icon: Quote },
+  {
+    id: 3,
+    title: "Media & Options",
+    description: "Image & volunteers",
+    icon: ImageIcon,
+  },
+  { id: 4, title: "Description", description: "Rich content", icon: Quote },
 ];
 
 const categoriesWithDetails = [
@@ -142,9 +159,63 @@ export default function CreateCampaign() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedCategory, setSelectedCategory] = useState("");
   const [description, setdescription] = useState("");
-  const API_URL = process.env.API_URL;
+  const [mainImage, setMainImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [enableVolunteers, setEnableVolunteers] = useState(false);
+  const [imageError, setImageError] = useState("");
+
+  const validateMediaStep = () => {
+    if (!mainImage) {
+      setImageError("Campaign image is required");
+      return false;
+    }
+    setImageError("");
+    return true;
+  };
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const { token } = useLoaderData<typeof loader>();
+  const [hydrated, sethydrated] = useState(false);
+  useEffect(() => {
+    sethydrated(true);
+  }, []);
+
+  if (!hydrated) {
+    return null; // or loading UI
+  }
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setImageError("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setImageError("Image size should be less than 5MB");
+      return;
+    }
+
+    setImageError("");
+    setMainImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+  const removeImage = () => {
+    setMainImage(null);
+    setImagePreview("");
+    setImageError("");
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -172,6 +243,10 @@ export default function CreateCampaign() {
       if (validateForm()) {
         setCurrentStep(3);
       }
+    } else if (currentStep === 3) {
+      if (validateMediaStep()) {
+        setCurrentStep(4);
+      }
     } else if (currentStep == steps.length) {
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -181,11 +256,16 @@ export default function CreateCampaign() {
       data.append("date", date?.toISOString().split("T")[0] || "");
       data.append("location", `${formData.country},${formData.city}`);
       data.append("description", description.toString());
+      if (mainImage) {
+        data.append("main", mainImage);
+      }
+      data.append("isvolunteer", enableVolunteers ? "true" : "false");
 
       if (date) data.append("date", date?.toISOString().split("T")[0] || "");
       try {
         const res = await fetch(`${API_URL}/api/campaigns/create`, {
           method: "POST",
+          credentials: "include",
           body: data,
           headers: {
             Authorization: `Bearer ${token}`,
@@ -194,11 +274,237 @@ export default function CreateCampaign() {
         if (!res.ok) return json({ error: "failed to create campaign" });
         navigate("/", { replace: true });
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
     return redirect("/");
   };
+  const renderMediaAndOptions = () => (
+    <div className="space-y-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-purple-100 rounded-lg">
+          <ImageIcon className="w-5 h-5 text-purple-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900">
+            Media & Campaign Options
+          </h2>
+          <p className="text-sm text-slate-500">
+            Upload your main campaign image and configure additional options
+          </p>
+        </div>
+      </div>
+
+      {/* Main Image Upload */}
+      <div className="space-y-4">
+        <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+          <ImageIcon className="w-4 h-4" />
+          Main Campaign Image
+          <span className="text-slate-400 font-normal ml-2">(Required)</span>
+        </Label>
+
+        {!imagePreview ? (
+          <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-slate-400 transition-colors">
+            <div className="flex flex-col items-center gap-4">
+              <div className="p-3 bg-slate-100 rounded-full">
+                <Upload className="w-6 h-6 text-slate-500" />
+              </div>
+              <div>
+                <p className="text-slate-600 font-medium">
+                  Upload campaign image
+                </p>
+                <p className="text-sm text-slate-500 mt-1">
+                  PNG, JPG, GIF up to 5MB. Recommended size: 1200x600px
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById("image-upload")?.click()}
+                className="gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Choose Image
+              </Button>
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            <div className="relative rounded-lg overflow-hidden border border-slate-200">
+              <img
+                src={imagePreview || "/placeholder.svg"}
+                alt="Campaign preview"
+                className="w-full h-64 object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() =>
+                    document.getElementById("image-upload")?.click()
+                  }
+                  className="gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Change Image
+                </Button>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={removeImage}
+              className="absolute top-2 right-2 gap-1 bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+            >
+              <X className="w-4 h-4" />
+              Remove
+            </Button>
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </div>
+        )}
+
+        {imageError && (
+          <div className="flex items-center gap-2 text-sm text-red-600">
+            <AlertCircle className="w-4 h-4" />
+            {imageError}
+          </div>
+        )}
+      </div>
+
+      {/* Volunteer Option */}
+      <div className="space-y-4">
+        <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+          <Users className="w-4 h-4" />
+          Volunteer Support
+        </Label>
+
+        <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Users className="w-5 h-5 text-green-600" />
+                </div>
+                <h3 className="font-medium text-slate-900">
+                  Enable Volunteer Support
+                </h3>
+              </div>
+              <p className="text-sm text-slate-600 mb-4">
+                Allow people to volunteer their time and skills to help your
+                campaign succeed. Volunteers can offer services like marketing,
+                design, technical support, or physical assistance.
+              </p>
+
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="enable-volunteers"
+                  checked={enableVolunteers}
+                  onCheckedChange={setEnableVolunteers}
+                  className="bg-gray-800"
+                />
+                <Label
+                  htmlFor="enable-volunteers"
+                  className="text-sm font-medium"
+                >
+                  {enableVolunteers
+                    ? "Disable volunteers"
+                    : "Enable Volunteers"}
+                </Label>
+              </div>
+            </div>
+          </div>
+
+          {enableVolunteers && (
+            <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-start gap-3">
+                <div className="p-1 bg-green-100 rounded">
+                  <svg
+                    className="w-4 h-4 text-green-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-medium text-green-900">
+                    Volunteer support enabled!
+                  </h4>
+                  <p className="text-sm text-green-700 mt-1">
+                    Your campaign will show a Volunteer button alongside the
+                    donation button. People can sign up to help with various
+                    tasks and you&apos;ll receive their contact information.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Preview Section */}
+      <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
+        <h3 className="font-medium text-slate-900 mb-4 flex items-center gap-2">
+          <Eye className="w-4 h-4" />
+          Campaign Preview
+        </h3>
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          {imagePreview && (
+            <div className="aspect-video bg-slate-100">
+              <img
+                src={imagePreview || "/placeholder.svg"}
+                alt="Campaign preview"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <div className="p-4">
+            <h4 className="font-semibold text-slate-900 mb-2">
+              {formData.title || "Your Campaign Title"}
+            </h4>
+            <p className="text-sm text-slate-600 mb-4">
+              {formData.shortDescription ||
+                "Your campaign description will appear here..."}
+            </p>
+            <div className="flex gap-2">
+              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                Donate Now
+              </Button>
+              {enableVolunteers && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2 bg-transparent"
+                >
+                  <Users className="w-4 h-4" />
+                  Volunteer
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   const renderBasicInfo = () => (
     <div className="space-y-8">
@@ -551,7 +857,6 @@ export default function CreateCampaign() {
         <Editor
           onUpdate={(html) => {
             setdescription(html);
-            console.log(html);
           }}
           token={token}
         />
@@ -564,10 +869,13 @@ export default function CreateCampaign() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Link
+                to={"/"}
+                className="gap-2 flex flex-row justify-center items-center"
+              >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Campaigns
-              </Button>
+              </Link>
               <Separator orientation="vertical" className="h-6" />
               <h1 className="text-xl font-semibold text-slate-900">
                 Create Campaign
@@ -655,7 +963,8 @@ export default function CreateCampaign() {
               <CardContent className="!p-8">
                 {currentStep === 1 && renderCategorySelection()}
                 {currentStep === 2 && renderBasicInfo()}
-                {currentStep === 3 && renderTextEditor()}
+                {currentStep === 3 && renderMediaAndOptions()}
+                {currentStep === 4 && renderTextEditor()}
 
                 {/* Footer */}
                 <div className="flex items-center justify-between !mt-8 !pt-6 border-t">
@@ -684,7 +993,7 @@ export default function CreateCampaign() {
                       size="sm"
                       className="gap-2 bg-indigo-600 hover:bg-indigo-700"
                       onClick={handleNext}
-                      disabled={currentStep === 1 && !selectedCategory}
+                      disabled={Boolean(currentStep === 1 && !selectedCategory)}
                     >
                       {currentStep === steps.length
                         ? "Create Campaign"

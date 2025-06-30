@@ -14,6 +14,7 @@ interface Campaign {
   shortDescription: string;
   volunteers: string;
   donatercount: string;
+  isvolunteer: boolean;
 }
 
 interface userProfile {

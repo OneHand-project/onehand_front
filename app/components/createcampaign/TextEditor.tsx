@@ -28,7 +28,8 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
   ({ className, onUpdate, token, ...props }, ref) => {
     TextEditor.displayName = "Editor";
     const MAX_FILE_SIZE = 2048 * 2048;
-    const API_URL = process.env.API_URL;
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const handleImageUpload = async (
       file: File,
       onProgress?: (event: { progress: number }) => void,
@@ -61,6 +62,7 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
             Authorization: `Bearer ${token}`,
           },
           body: formdata,
+          credentials: "include",
         });
 
         onProgress?.({ progress: 100 });

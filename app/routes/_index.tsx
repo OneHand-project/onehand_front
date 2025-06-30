@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import CampaignCard from "~/components/CampaignCard";
@@ -10,13 +10,6 @@ import styles from "~/styles/Home.module.css";
 
 import { Campaign } from "~/types/campaign";
 import { authCookie, verifyuser } from "~/utils/cookies.server";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "OneHand" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
 
 const Hero = "/Hero.webp";
 const Medical = "/assets/category/medic.png";
@@ -34,20 +27,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   try {
     const res = await fetch(`${API_URL}/api/campaigns/featured`);
-    if (!res.ok) {
+    const fetchcampaigns = await fetch(`${API_URL}/api/campaigns`);
+
+    if (!res.ok && !fetchcampaigns.ok) {
       throw json({ message: "Not found" }, { status: 404 });
     }
     const campaigns: Campaign[] = await res.json();
+    const allcampaigns: Campaign[] = await fetchcampaigns.json();
 
-    return json({ campaigns, islogin, data });
+    return json({ campaigns, islogin, data, allcampaigns });
   } catch (e) {
     console.error(e);
     return [];
   }
 }
+
 export default function Index() {
-  const { campaigns, islogin, data } = useLoaderData<typeof loader>();
+  const { campaigns, islogin, data, allcampaigns } =
+    useLoaderData<typeof loader>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   return (
     <>
       <CrowdfundingToolbar
@@ -137,6 +136,7 @@ export default function Index() {
         <SearchOverlay
           isOpen={isSearchOpen}
           onClose={() => setIsSearchOpen(false)}
+          campaigns={allcampaigns}
         />
       </main>
     </>

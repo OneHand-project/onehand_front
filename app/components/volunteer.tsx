@@ -11,16 +11,18 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { Checkbox } from "~/components/ui/checkbox";
-import { Users, Mail, Phone } from "lucide-react";
+import { Users, Mail, Phone, AlertCircleIcon } from "lucide-react";
 import { TokenPayload } from "~/types/Token";
 import { Form, useFetcher } from "@remix-run/react";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 interface VolunteerModalProps {
   isOpen: boolean;
   onClose: () => void;
   campaignId: string;
   campaignTitle: string;
-  user: TokenPayload;
+  user: TokenPayload | null;
+  islogin: boolean;
 }
 
 export function VolunteerModal({
@@ -29,6 +31,7 @@ export function VolunteerModal({
   campaignId,
   campaignTitle,
   user,
+  islogin,
 }: VolunteerModalProps) {
   const [formData, setFormData] = useState({
     id: campaignId,
@@ -180,7 +183,15 @@ export function VolunteerModal({
                 that my information will be shared with the campaign organizer.
               </Label>
             </div>
-
+            {!islogin && (
+              <Alert variant={"destructive"} style={{ padding: 12 }}>
+                <AlertCircleIcon />
+                <AlertTitle> Sign in </AlertTitle>
+                <AlertDescription>
+                  you need to login inorder to donate
+                </AlertDescription>
+              </Alert>
+            )}
             {/* Action Buttons */}
             <div className="flex space-x-3 pt-4">
               <Button
@@ -192,7 +203,7 @@ export function VolunteerModal({
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={!isFormValid || isSubmitting}
+                disabled={!isFormValid || isSubmitting || !islogin}
                 className="flex-1"
               >
                 {isSubmitting ? "Submitting..." : "Submit Application"}

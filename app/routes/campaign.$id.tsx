@@ -12,17 +12,26 @@ import { Progress } from "~/components/ui/progress";
 import { Badge } from "~/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { CalendarDays, MapPin, Users, Heart, Share2, Flag } from "lucide-react";
+import {
+  CalendarDays,
+  MapPin,
+  Users,
+  Heart,
+  Share2,
+  Flag,
+  ArrowLeft,
+} from "lucide-react";
 import { DonationModal } from "~/components/donation";
 import { VolunteerModal } from "~/components/volunteer";
 
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect, useLoaderData } from "@remix-run/react";
+import { Link, redirect, useLoaderData } from "@remix-run/react";
 
-import { authCookie } from "~/utils/cookies.server";
+import { authCookie, verifyuser } from "~/utils/cookies.server";
 import { Campaign } from "~/types/campaign";
 import { TokenPayload } from "~/types/Token";
 import { jwtDecode } from "jwt-decode";
+import { Separator } from "~/components/ui/separator";
 
 export async function action({ request }: ActionFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
@@ -34,6 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       const res = await fetch(`${API_URL}/api/campaigns/donate`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,6 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       const res = await fetch(`${API_URL}/api/campaigns/volunteer`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -62,11 +73,15 @@ export async function action({ request }: ActionFunctionArgs) {
   }
   return json({ message: "donation succesfull" });
 }
+
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const API_URL = process.env.API_URL;
   const campaignId = params.id;
   const cookieHeader = request.headers.get("Cookie");
   const token = await authCookie.parse(cookieHeader);
+
+  const data = (await verifyuser(token)) || null;
+  const islogin = data != null ? true : false;
 
   try {
     const res = await fetch(
@@ -80,7 +95,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
     const data = await res.json();
 
-    return json({ data, token });
+    return json({ data, token, islogin });
   } catch (e) {
     console.error(e);
     return null;
@@ -89,7 +104,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return null;
 }
 export default function CampaignPage() {
-  const { data, token } = useLoaderData<typeof loader>();
+  const { data, token, islogin } = useLoaderData<typeof loader>();
   const campaignData: Campaign = data;
   let user: TokenPayload | null = null;
 
@@ -114,6 +129,22 @@ export default function CampaignPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <div className="header">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link
+                to={"/"}
+                className="gap-2 flex flex-row justify-center items-center"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
+              </Link>
+              <Separator orientation="vertical" className="h-6" />
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -285,14 +316,16 @@ export default function CampaignPage() {
                     Donate Now
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    className="w-full bg-transparent"
-                    onClick={() => setShowVolunteerModal(true)}
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Volunteer ({campaignData.volunteers})
-                  </Button>
+                  {campaignData.isvolunteer == true ? (
+                    <Button
+                      variant="outline"
+                      className="w-full bg-transparent"
+                      onClick={() => setShowVolunteerModal(true)}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Volunteer ({campaignData.volunteers})
+                    </Button>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>
@@ -342,6 +375,7 @@ export default function CampaignPage() {
         onClose={() => setShowDonationModal(false)}
         campaignId={campaignData.id}
         campaignTitle={campaignData.title}
+        islogin={islogin}
       />
 
       <VolunteerModal

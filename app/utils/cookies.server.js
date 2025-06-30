@@ -3,7 +3,7 @@ import { createCookie } from "@remix-run/node";
 export const authCookie = createCookie("token", {
   httpOnly: true,
   sameSite: "lax",
-  secure: process.env.NODE_ENV === "production",
+  secure: import.meta.env.NODE_ENV === "production",
   path: "/",
 });
 const API_URL = process.env.API_URL;
@@ -15,6 +15,7 @@ export async function verifyuser(token) {
   try {
     const res = await fetch(`${API_URL}/api/auth/verifyuser`, {
       method: "GET",
+      credentials: "include",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

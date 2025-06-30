@@ -12,8 +12,8 @@ import { Input } from "~/components/ui/input";
 import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { userProfile } from "~/types/campaign";
-import { useNavigate } from "@remix-run/react";
-import SearchOverlay from "./home/search-overlay";
+import { useFetcher, useNavigate } from "@remix-run/react";
+
 import { useState } from "react";
 
 export default function CrowdfundingToolbar({
@@ -22,7 +22,7 @@ export default function CrowdfundingToolbar({
   onSearchOpen,
 }: {
   login: boolean;
-  data: userProfile;
+  data?: userProfile;
   onSearchOpen?: () => void;
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,6 +38,13 @@ export default function CrowdfundingToolbar({
     if (onSearchOpen) {
       onSearchOpen();
     }
+  };
+  const fetcher = useFetcher();
+  const handlelogout = () => {
+    fetcher.submit("", {
+      method: "post",
+      action: `/`,
+    });
   };
 
   return (
@@ -85,9 +92,12 @@ export default function CrowdfundingToolbar({
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
             {/* Start Project Button */}
-            <Button className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+            <Button
+              className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              onClick={() => navigation("/campaign/create")}
+            >
               <Plus className="h-4 w-4 mr-2" />
-              Start a Project
+              Start a campaign
             </Button>
 
             {/* Mobile Search */}
@@ -122,7 +132,13 @@ export default function CrowdfundingToolbar({
                       className="relative h-8 w-8 rounded-full"
                     >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={data.avatar} alt="User" />
+                        <AvatarImage
+                          src={
+                            data?.avatar ||
+                            "https://imagehandler.fra1.digitaloceanspaces.com/defautuser.jpg"
+                          }
+                          alt="User"
+                        />
                         <AvatarFallback>JD</AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium">
@@ -134,10 +150,10 @@ export default function CrowdfundingToolbar({
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {data?.username}
+                          {data?.username || "Guest"}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
-                          {data?.email}
+                          {data?.email || "Guest@email.com"}
                         </p>
                       </div>
                     </DropdownMenuLabel>
@@ -147,7 +163,12 @@ export default function CrowdfundingToolbar({
                     <DropdownMenuItem>Profile Settings</DropdownMenuItem>
                     <DropdownMenuItem>Billing</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setIsLoggedIn(false)}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        handlelogout;
+                        setIsLoggedIn(false);
+                      }}
+                    >
                       Log out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
