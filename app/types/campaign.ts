@@ -24,6 +24,7 @@ interface userProfile {
   username: string;
   avatar: string;
   verified: boolean;
+  roles: string;
 }
 
 export type { Campaign, userProfile };

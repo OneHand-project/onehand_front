@@ -11,7 +11,8 @@ import type { LinksFunction } from "@remix-run/node";
 
 import "~/global.css";
 import "./tailwind.css";
-import { authCookie } from "./utils/cookies.server";
+
+import { destroyToken } from "./utils/session.server";
 
 export const links: LinksFunction = () => [
   {
@@ -38,13 +39,9 @@ export const meta: MetaFunction = () => {
   ];
 };
 export async function action() {
-  const cookieHeader = await authCookie.serialize("", {
-    maxAge: 0,
-    path: "/",
-  });
   return redirect("/", {
     headers: {
-      "Set-Cookie": cookieHeader,
+      "Set-cookie": await destroyToken(),
     },
   });
 }

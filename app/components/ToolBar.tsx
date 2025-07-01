@@ -15,15 +15,18 @@ import { userProfile } from "~/types/campaign";
 import { useFetcher, useNavigate } from "@remix-run/react";
 
 import { useState } from "react";
+import { User } from "~/types/User";
 
 export default function CrowdfundingToolbar({
   login,
   data,
   onSearchOpen,
+  profile,
 }: {
   login: boolean;
   data?: userProfile;
   onSearchOpen?: () => void;
+  profile: User;
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(login);
@@ -31,7 +34,7 @@ export default function CrowdfundingToolbar({
   const navigation = useNavigate();
   const navigationItems = [
     { label: "Categories", href: "/categories" },
-    { label: "How it Works", href: "/how-it-works" },
+    { label: "How it Works", href: "/HowItWorks" },
   ];
 
   const handleSearchClick = () => {
@@ -40,11 +43,15 @@ export default function CrowdfundingToolbar({
     }
   };
   const fetcher = useFetcher();
-  const handlelogout = () => {
-    fetcher.submit("", {
-      method: "post",
-      action: `/`,
-    });
+  const handlelogout = async () => {
+    try {
+      fetcher.submit("", {
+        method: "POST",
+        action: `/`,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -74,6 +81,14 @@ export default function CrowdfundingToolbar({
                 {item.label}
               </a>
             ))}
+            {data?.roles == "ADMIN" ? (
+              <a
+                href="/dashboard"
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
+              >
+                Dashboard
+              </a>
+            ) : null}
           </nav>
 
           {/* Search Bar */}
@@ -158,14 +173,26 @@ export default function CrowdfundingToolbar({
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>My Projects</DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        navigation("/mycampaigns");
+                      }}
+                    >
+                      My Projects
+                    </DropdownMenuItem>
                     <DropdownMenuItem>Backed Projects</DropdownMenuItem>
-                    <DropdownMenuItem>Profile Settings</DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        navigation("/profile");
+                      }}
+                    >
+                      Profile Settings
+                    </DropdownMenuItem>
                     <DropdownMenuItem>Billing</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => {
-                        handlelogout;
+                        handlelogout();
                         setIsLoggedIn(false);
                       }}
                     >
@@ -185,7 +212,9 @@ export default function CrowdfundingToolbar({
                   Sign In
                 </Button>
                 <Button
-                  onClick={() => setIsLoggedIn(true)}
+                  onClick={() => {
+                    navigation("/auth");
+                  }}
                   className="hidden sm:flex"
                 >
                   Sign Up
@@ -247,7 +276,9 @@ export default function CrowdfundingToolbar({
                   <Button
                     variant="outline"
                     className="w-full sm:hidden"
-                    onClick={() => setIsLoggedIn(true)}
+                    onClick={() => {
+                      navigation("/auth");
+                    }}
                   >
                     Sign Up
                   </Button>

@@ -1,11 +1,11 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, Link, redirect, useActionData } from "@remix-run/react";
 import { clsx } from "clsx";
 import { AlertCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import styles from "~/styles/Login.module.css";
-import { authCookie } from "~/utils/cookies.server";
+import { authCookie, verifyuser } from "~/utils/cookies.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -43,6 +43,14 @@ export async function action({ request }: ActionFunctionArgs) {
     console.error(e);
     return json({ error: "Unexpected error", status: 500 });
   }
+}
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookieHeader = request.headers.get("Cookie");
+  const token = await authCookie.parse(cookieHeader);
+  const data = await verifyuser(token);
+
+  if (token && data != null) return redirect("/");
+  return null;
 }
 export default function Auth() {
   const [isActive, setIsActive] = useState(false);

@@ -62,7 +62,6 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
             Authorization: `Bearer ${token}`,
           },
           body: formdata,
-          credentials: "include",
         });
 
         onProgress?.({ progress: 100 });

@@ -15,7 +15,6 @@ export async function verifyuser(token) {
   try {
     const res = await fetch(`${API_URL}/api/auth/verifyuser`, {
       method: "GET",
-      credentials: "include",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, redirect, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import CampaignCard from "~/components/CampaignCard";
 import CategoryCard from "~/components/Card";
@@ -10,6 +10,8 @@ import styles from "~/styles/Home.module.css";
 
 import { Campaign } from "~/types/campaign";
 import { authCookie, verifyuser } from "~/utils/cookies.server";
+import { destroyToken } from "~/utils/session.server";
+import { User } from "~/types/User";
 
 const Hero = "/Hero.webp";
 const Medical = "/assets/category/medic.png";
